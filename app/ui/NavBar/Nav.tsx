@@ -6,14 +6,19 @@ import { CgProfile } from "react-icons/cg";
 import Image from "next/image";
 import biglogo from '../../../public/logolong.png'
 import smalllogo from '../../../public/logoshort.png'
+import { useAuth } from '../Context/AuthContext';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const navigation = [
-  { name: 'Dashboard', href: '/', current: true },
+  { name: 'Dashboard', href: '/dashboard', current: false },
   { name: 'Interview', href: '/invterview', current: false },
   { name: 'Applications', href: '/applications', current: false },
 ]
 
 export default function Nav() {
+    const { currentUser, logout } = useAuth();
+    const router = useRouter()
     function classNames(...classes : any) {
         return classes.filter(Boolean).join(' ')
     }
@@ -28,8 +33,10 @@ export default function Nav() {
         <nav className="">
             <div className="flex space-x-4 bg-[#1d1b1b] p-4 justify-between">
                 <div className="max-w-[90%] flex flex-row">
+                    <Link href="/">
                     <Image src={smalllogo} width={80} height={50} className="my-1 md:hidden block" alt ="" />
                     <Image src={biglogo} width={270} height={50} className="hidden md:block" alt ="" />
+                    </Link>
                     <div className="flex flex-row space-x-4 p-3">
                     {navigation.map((item) => (
                         <a
@@ -49,7 +56,22 @@ export default function Nav() {
                     </div>
                     
                 </div>
-                <CgProfile color="lightgray" className="mt-3" size={40}/>
+                {currentUser ? <button
+                        key="sign-out"
+                        className=""
+                        onClick={async () => {
+                    await logout();
+                    router.push('/');
+                    }}
+                    >
+                    Logout
+                </button>:<button
+                        key="sign-in"
+                        className="gap-x-3 rounded-md text-sm font-semibold my-3 px-3 bg-white leading-6 hover:bg-gray-600 hover:text-gray-300 text-gray-600"
+                        onClick={() => router.push('/login')}
+                    >
+                    Login
+                </button>}
               </div>
         </nav>
     )
