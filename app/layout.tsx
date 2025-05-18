@@ -28,14 +28,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-700 min-h-screen`}
       >
         <AuthProvider>
           <ToastProvider />
           <div className="fixed top-0 left-0 right-0 z-50 w-full">
             <Nav />
           </div>
-          {children}
+          <div className="min-h-screen">
+            {children}
+          </div>
         </AuthProvider>
       </body>
     </html>

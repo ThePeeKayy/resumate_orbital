@@ -23,7 +23,7 @@ export default function PageWrapper({
 
     return (
         <div className={`
-            ${fullHeight ? 'min-h-screen' : 'min-h-[calc(100vh-4rem)]'} 
+            min-h-screen
             ${backgroundClasses[background]}
             pt-16 
             ${className}
