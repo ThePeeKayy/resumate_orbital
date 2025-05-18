@@ -1,9 +1,13 @@
 'use client'
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useAuth } from '../Context/AuthContext';
+import { useRouter } from 'next/navigation';
 
-export default function Hero () {
+export default function Hero() {
   const [rotation, setRotation] = useState(0);
+  const { currentUser, loading } = useAuth();
+  const router = useRouter();
   
   useEffect(() => {
     const interval = setInterval(() => {
@@ -12,6 +16,23 @@ export default function Hero () {
     
     return () => clearInterval(interval);
   }, []);
+
+  const handleStartPracticing = () => {
+    if (currentUser) {
+      router.push('/dashboard');
+    } else {
+      // Redirect to register page for new users
+      router.push('/register');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex mx-auto bg-gray-700 md:pt-8 h-screen items-center justify-center w-full">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex mx-auto bg-gray-700 md:pt-8 h-screen items-center justify-center w-full">
@@ -24,11 +45,29 @@ export default function Hero () {
             We use modern powerful LLMs and Decoders to elevate your interview skills.
             Not sure what to work on? Don't worry our AI got you covered
           </p>
-          <Link href="/interview">
-            <button className="md:mt-6 px-8 py-3 bg-gradient-to-r from-gray-100 to-gray-400 text-gray-700 font-bold rounded-full shadow-lg hover:shadow-xl transform transition-all duration-300 hover:-translate-y-1 hover:scale-105">
-              Start Practicing Now
-            </button>
-          </Link>
+          
+          {currentUser ? (
+            <div className="space-y-4">
+              <p className="text-gray-300 text-sm">
+                Welcome back, {currentUser.email}!
+              </p>
+              <button 
+                onClick={handleStartPracticing}
+                className="md:mt-6 px-8 py-3 bg-gradient-to-r from-gray-100 to-gray-400 text-gray-700 font-bold rounded-full shadow-lg hover:shadow-xl transform transition-all duration-300 hover:-translate-y-1 hover:scale-105"
+              >
+                Continue to Dashboard
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <button 
+                onClick={handleStartPracticing}
+                className="md:mt-6 px-8 py-3 bg-gradient-to-r from-gray-100 to-gray-400 text-gray-700 font-bold rounded-full shadow-lg hover:shadow-xl transform transition-all duration-300 hover:-translate-y-1 hover:scale-105"
+              >
+                Start Practicing Now
+              </button>
+            </div>
+          )}
         </div>
         <div 
           className="relative mx-auto min-w-48 max-w-48 h-80 bg-gray-100 rounded-lg"
@@ -44,8 +83,6 @@ export default function Hero () {
           </div>
         </div>
       </div>
-      
     </div>
   );
-};
-
+}

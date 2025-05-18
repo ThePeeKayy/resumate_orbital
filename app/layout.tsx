@@ -35,9 +35,7 @@ export default function RootLayout({
           <div className="fixed top-0 left-0 right-0 z-50 w-full">
             <Nav />
           </div>
-          <div className="bg-gray-700 min-h-screen">
-            {children}
-          </div>
+          {children}
         </AuthProvider>
       </body>
     </html>
