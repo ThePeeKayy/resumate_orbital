@@ -11,8 +11,10 @@ import Link from 'next/link';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', current: false },
-  { name: 'Interview', href: '/interview', current: false },
-  { name: 'Applications', href: '/applications', current: false },
+  { name: 'Practice', href: '/practice/setup', current: false },
+  { name: 'Answers', href: '/answers', current: false },
+  { name: 'Jobs', href: '/jobs', current: false },
+  { name: 'Profile', href: '/profile', current: false },
 ]
 
 export default function Nav() {
