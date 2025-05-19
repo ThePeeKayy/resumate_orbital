@@ -1,4 +1,4 @@
-// src/services/firebase/firestore.ts
+// app/Services/firebase/firestore.ts
 import { db, storage } from './config';
 import {
     collection,

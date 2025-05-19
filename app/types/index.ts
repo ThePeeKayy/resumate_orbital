@@ -1,3 +1,4 @@
+// app/types/index.ts
 export interface Education {
     id: string;
     institution: string;

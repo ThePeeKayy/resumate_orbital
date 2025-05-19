@@ -1,3 +1,4 @@
+// app/page.tsx
 'use client'
 
 import Hero from "./ui/Hero/Hero";

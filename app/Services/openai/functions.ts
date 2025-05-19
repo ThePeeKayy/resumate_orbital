@@ -1,3 +1,4 @@
+// app/Services/openai/functions.ts
 import openai from './api';
 import { UserProfile, QuestionCategory, Job } from '../../types';
 

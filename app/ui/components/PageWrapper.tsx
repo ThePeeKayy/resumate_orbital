@@ -1,3 +1,4 @@
+// app/ui/components/PageWrapper.tsx
 'use client'
 
 import React from 'react';

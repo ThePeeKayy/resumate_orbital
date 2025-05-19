@@ -1,3 +1,4 @@
+// app/ui/components/profile/forms/EducationForm.tsx
 'use client'
 
 import React, { useState } from 'react';
