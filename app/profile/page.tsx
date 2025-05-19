@@ -9,7 +9,7 @@ import { beautifyProfile } from '../Services/openai/functions';
 import { UserProfile } from '../types';
 import toast from 'react-hot-toast';
 import PrivateRoute from '../ui/components/PrivateRoute';
-import PageWrapper from '../ui/components/PageWrapper';
+import { getCardClasses, getInputClasses, getButtonClasses } from '../ui/styles/theme';
 
 export default function Profile() {
     const { currentUser } = useAuth();
@@ -35,7 +35,6 @@ export default function Profile() {
                 const userProfile = await getUserProfile(currentUser.uid);
 
                 if (!userProfile) {
-                    // Redirect to profile setup if not exists
                     return router.push('/profile/setup');
                 }
 
@@ -169,164 +168,167 @@ export default function Profile() {
     if (loading) {
         return (
             <PrivateRoute>
-                <PageWrapper background="dark" className="min-h-screen flex items-center justify-center">
+                <div className="min-h-screen bg-gray-700 flex items-center justify-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-400"></div>
-                </PageWrapper>
+                </div>
             </PrivateRoute>
         );
     }
 
     return (
         <PrivateRoute>
-            <PageWrapper background="dark" className="min-h-screen py-8">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="mb-8">
-                        <h1 className="text-2xl font-bold text-white">Your Profile</h1>
-                        <p className="mt-1 text-gray-400">
-                            Update your personal information to get more relevant interview questions
-                        </p>
-                    </div>
+            <div className="min-h-screen bg-gray-700">
+                <div className="w-full">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        <div className="mb-8">
+                            <h1 className="text-2xl font-bold text-white">Your Profile</h1>
+                            <p className="mt-1 text-gray-400">
+                                Update your personal information to get more relevant interview questions
+                            </p>
+                        </div>
 
-                    <div className="bg-gray-800 border border-gray-600 shadow overflow-hidden sm:rounded-lg">
-                        <form onSubmit={handleSubmit}>
-                            <div className="px-4 py-5 sm:p-6">
-                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-6">
-                                    <div className="sm:col-span-3">
-                                        <label htmlFor="name" className="block text-sm font-medium text-gray-300">
-                                            Full Name
-                                        </label>
-                                        <div className="mt-1">
-                                            <input
-                                                type="text"
-                                                name="name"
-                                                id="name"
-                                                value={formData.name || ''}
-                                                onChange={handleInputChange}
-                                                required
-                                                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400"
-                                                style={fieldsChanged.includes('name') ? { borderColor: '#3b82f6' } : {}}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="sm:col-span-3">
-                                        <label htmlFor="email" className="block text-sm font-medium text-gray-300">
-                                            Email
-                                        </label>
-                                        <div className="mt-1">
-                                            <input
-                                                type="email"
-                                                name="email"
-                                                id="email"
-                                                value={formData.email || ''}
-                                                onChange={handleInputChange}
-                                                required
-                                                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="sm:col-span-3">
-                                        <label htmlFor="phone" className="block text-sm font-medium text-gray-300">
-                                            Phone Number
-                                        </label>
-                                        <div className="mt-1">
-                                            <input
-                                                type="tel"
-                                                name="phone"
-                                                id="phone"
-                                                value={formData.phone || ''}
-                                                onChange={handleInputChange}
-                                                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400"
-                                                style={fieldsChanged.includes('phone') ? { borderColor: '#3b82f6' } : {}}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="sm:col-span-3">
-                                        <label htmlFor="location" className="block text-sm font-medium text-gray-300">
-                                            Location
-                                        </label>
-                                        <div className="mt-1">
-                                            <input
-                                                type="text"
-                                                name="location"
-                                                id="location"
-                                                value={formData.location || ''}
-                                                onChange={handleInputChange}
-                                                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400"
-                                                placeholder="City, State/Province, Country"
-                                                style={fieldsChanged.includes('location') ? { borderColor: '#3b82f6' } : {}}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="sm:col-span-6">
-                                        <label htmlFor="summary" className="block text-sm font-medium text-gray-300">
-                                            Professional Summary
-                                        </label>
-                                        <div className="mt-1">
-                                            <textarea
-                                                id="summary"
-                                                name="summary"
-                                                rows={4}
-                                                value={formData.summary || ''}
-                                                onChange={handleInputChange}
-                                                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400"
-                                                style={fieldsChanged.includes('summary') ? { borderColor: '#3b82f6' } : {}}
-                                            />
-                                        </div>
-
-                                        {/* Before/After Comparison */}
-                                        {showComparison && originalSummary && (
-                                            <div className="mt-3 p-3 bg-gray-700 rounded-md border border-gray-600">
-                                                <h4 className="text-xs font-medium text-gray-300 mb-2">See what changed:</h4>
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                    <div>
-                                                        <p className="text-xs text-gray-400 mb-1">Before:</p>
-                                                        <p className="text-xs text-gray-300 whitespace-pre-line bg-gray-800 p-2 rounded border border-gray-600">{originalSummary}</p>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-xs text-gray-400 mb-1">After:</p>
-                                                        <p className="text-xs text-gray-300 whitespace-pre-line bg-gray-800 p-2 rounded border border-blue-600">{formData.summary}</p>
-                                                    </div>
-                                                </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setShowComparison(false)}
-                                                    className="mt-2 text-xs text-gray-400 hover:text-gray-300"
-                                                >
-                                                    Close comparison
-                                                </button>
+                        {/* Main Profile Form */}
+                        <div className={`${getCardClasses()} mb-8`}>
+                            <form onSubmit={handleSubmit}>
+                                <div className="px-4 py-5 sm:p-6">
+                                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-6">
+                                        <div className="sm:col-span-3">
+                                            <label htmlFor="name" className="block text-sm font-medium text-gray-300">
+                                                Full Name
+                                            </label>
+                                            <div className="mt-1">
+                                                <input
+                                                    type="text"
+                                                    name="name"
+                                                    id="name"
+                                                    value={formData.name || ''}
+                                                    onChange={handleInputChange}
+                                                    required
+                                                    className={`${getInputClasses()} block w-full sm:text-sm rounded-md`}
+                                                    style={fieldsChanged.includes('name') ? { borderColor: '#3b82f6' } : {}}
+                                                />
                                             </div>
-                                        )}
-                                    </div>
+                                        </div>
 
-                                    <div className="sm:col-span-6">
-                                        <label htmlFor="additionalInfo" className="block text-sm font-medium text-gray-300">
-                                            Additional Information
-                                        </label>
-                                        <div className="mt-1">
-                                            <textarea
-                                                id="additionalInfo"
-                                                name="additionalInfo"
-                                                rows={4}
-                                                value={formData.additionalInfo || ''}
-                                                onChange={handleInputChange}
-                                                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400"
-                                                style={fieldsChanged.includes('additionalInfo') ? { borderColor: '#3b82f6' } : {}}
-                                            />
+                                        <div className="sm:col-span-3">
+                                            <label htmlFor="email" className="block text-sm font-medium text-gray-300">
+                                                Email
+                                            </label>
+                                            <div className="mt-1">
+                                                <input
+                                                    type="email"
+                                                    name="email"
+                                                    id="email"
+                                                    value={formData.email || ''}
+                                                    onChange={handleInputChange}
+                                                    required
+                                                    className={`${getInputClasses()} block w-full sm:text-sm rounded-md`}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="sm:col-span-3">
+                                            <label htmlFor="phone" className="block text-sm font-medium text-gray-300">
+                                                Phone Number
+                                            </label>
+                                            <div className="mt-1">
+                                                <input
+                                                    type="tel"
+                                                    name="phone"
+                                                    id="phone"
+                                                    value={formData.phone || ''}
+                                                    onChange={handleInputChange}
+                                                    className={`${getInputClasses()} block w-full sm:text-sm rounded-md`}
+                                                    style={fieldsChanged.includes('phone') ? { borderColor: '#3b82f6' } : {}}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="sm:col-span-3">
+                                            <label htmlFor="location" className="block text-sm font-medium text-gray-300">
+                                                Location
+                                            </label>
+                                            <div className="mt-1">
+                                                <input
+                                                    type="text"
+                                                    name="location"
+                                                    id="location"
+                                                    value={formData.location || ''}
+                                                    onChange={handleInputChange}
+                                                    className={`${getInputClasses()} block w-full sm:text-sm rounded-md`}
+                                                    placeholder="City, State/Province, Country"
+                                                    style={fieldsChanged.includes('location') ? { borderColor: '#3b82f6' } : {}}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="sm:col-span-6">
+                                            <label htmlFor="summary" className="block text-sm font-medium text-gray-300">
+                                                Professional Summary
+                                            </label>
+                                            <div className="mt-1">
+                                                <textarea
+                                                    id="summary"
+                                                    name="summary"
+                                                    rows={4}
+                                                    value={formData.summary || ''}
+                                                    onChange={handleInputChange}
+                                                    className={`${getInputClasses()} block w-full sm:text-sm rounded-md`}
+                                                    style={fieldsChanged.includes('summary') ? { borderColor: '#3b82f6' } : {}}
+                                                />
+                                            </div>
+
+                                            {/* Before/After Comparison */}
+                                            {showComparison && originalSummary && (
+                                                <div className="mt-3 p-3 bg-gray-700 rounded-md border border-gray-600">
+                                                    <h4 className="text-xs font-medium text-gray-300 mb-2">See what changed:</h4>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                        <div>
+                                                            <p className="text-xs text-gray-400 mb-1">Before:</p>
+                                                            <p className="text-xs text-gray-300 whitespace-pre-line bg-gray-800 p-2 rounded border border-gray-600">{originalSummary}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-xs text-gray-400 mb-1">After:</p>
+                                                            <p className="text-xs text-gray-300 whitespace-pre-line bg-gray-800 p-2 rounded border border-blue-600">{formData.summary}</p>
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowComparison(false)}
+                                                        className="mt-2 text-xs text-gray-400 hover:text-gray-300"
+                                                    >
+                                                        Close comparison
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="sm:col-span-6">
+                                            <label htmlFor="additionalInfo" className="block text-sm font-medium text-gray-300">
+                                                Additional Information
+                                            </label>
+                                            <div className="mt-1">
+                                                <textarea
+                                                    id="additionalInfo"
+                                                    name="additionalInfo"
+                                                    rows={4}
+                                                    value={formData.additionalInfo || ''}
+                                                    onChange={handleInputChange}
+                                                    className={`${getInputClasses()} block w-full sm:text-sm rounded-md`}
+                                                    style={fieldsChanged.includes('additionalInfo') ? { borderColor: '#3b82f6' } : {}}
+                                                />
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                {/* Enhanced Beautify Profile Section */}
-                                <div className="mt-6 bg-gradient-to-r from-blue-900/20 to-purple-900/20 p-5 rounded-lg border border-blue-600/30 shadow-sm">
-                                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-green-600/10 rounded-lg"></div>
-                                    <div className="relative">
+                                    {/* Enhanced Beautify Profile Section */}
+                                    <div className="mt-6 bg-blue-900/10 border border-blue-600/30 p-5 rounded-lg shadow-sm">
                                         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                                             <div className="flex-1">
-                                                <h3 className="text-lg font-medium text-blue-200 mb-2">✨ Enhance My Profile with AI</h3>
+                                                <h3 className="text-lg font-medium text-blue-200 mb-2 flex items-center">
+                                                    <span className="mr-2">✨</span>
+                                                    Enhance My Profile with AI
+                                                </h3>
                                                 <p className="text-sm text-blue-300 mb-3">
                                                     Instantly transform your profile content with our AI enhancement that will:
                                                 </p>
@@ -342,7 +344,7 @@ export default function Profile() {
                                                     type="button"
                                                     onClick={handleBeautifyProfile}
                                                     disabled={beautifying}
-                                                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-md text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 disabled:opacity-50"
+                                                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-md text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 disabled:opacity-50 disabled:hover:scale-100"
                                                 >
                                                     {beautifying ? (
                                                         <>
@@ -353,239 +355,241 @@ export default function Profile() {
                                                             Enhancing with AI...
                                                         </>
                                                     ) : (
-                                                        <>
-                                                            Enhance with AI Magic
-                                                        </>
+                                                        'Enhance with AI Magic'
                                                     )}
                                                 </button>
                                             </div>
                                         </div>
 
                                         {fieldsChanged.length > 0 && (
-                                            <div className="mt-3 bg-gray-800 p-3 rounded-md border border-blue-600/30">
+                                            <div className="mt-3 bg-gray-800/70 p-3 rounded-md border border-blue-600/30">
                                                 <p className="text-sm text-blue-300">
-                                                    <span className="font-medium">AI enhancement applied! </span>
+                                                    <span className="font-medium">✅ AI enhancement applied!</span>
+                                                    <br />
                                                     Your profile has been improved with professional language and structure.
                                                     {!showComparison && fieldsChanged.includes('summary') && (
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setShowComparison(true)}
-                                                            className="ml-2 text-blue-400 hover:text-blue-300 underline"
-                                                        >
-                                                            View changes
-                                                        </button>
+                                                        <>
+                                                            <br />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setShowComparison(true)}
+                                                                className="mt-1 text-blue-400 hover:text-blue-300 underline text-xs"
+                                                            >
+                                                                Click here to view the changes
+                                                            </button>
+                                                        </>
                                                     )}
                                                 </p>
                                             </div>
                                         )}
                                     </div>
                                 </div>
-                            </div>
-                            <div className="px-4 py-3 bg-gray-700 text-right sm:px-6">
-                                <button
-                                    type="button"
-                                    onClick={() => router.push('/profile/setup')}
-                                    className="ml-3 inline-flex justify-center py-2 px-4 border border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-300 bg-gray-700 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                >
-                                    Edit Full Profile
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={updating}
-                                    className={`ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${saveHighlighted ? 'bg-green-600 hover:bg-green-700 transform scale-105' : 'bg-blue-600 hover:bg-blue-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300`}
-                                    style={saveHighlighted ? { boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' } : {}}
-                                >
-                                    {updating ? 'Saving...' : saveHighlighted ? 'Save Enhanced Profile' : 'Save Changes'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-                        {/* Education section */}
-                        <div className="bg-gray-800 border border-gray-600 shadow overflow-hidden sm:rounded-lg">
-                            <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
-                                <div>
-                                    <h2 className="text-lg font-medium text-white">Education</h2>
-                                    <p className="mt-1 text-sm text-gray-400">Your academic background</p>
+                                <div className="px-4 py-3 bg-gray-700 text-right sm:px-6">
+                                    <button
+                                        type="button"
+                                        onClick={() => router.push('/profile/setup')}
+                                        className={getButtonClasses('secondary')}
+                                    >
+                                        Edit Full Profile
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={updating}
+                                        className={`ml-3 ${saveHighlighted ? 'bg-green-600 hover:bg-green-700 transform scale-105' : 'bg-blue-600 hover:bg-blue-700'} inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300`}
+                                        style={saveHighlighted ? { boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' } : {}}
+                                    >
+                                        {updating ? 'Saving...' : saveHighlighted ? 'Save Enhanced Profile' : 'Save Changes'}
+                                    </button>
                                 </div>
-                                <button
-                                    type="button"
-                                    onClick={() => router.push('/profile/setup')}
-                                    className="inline-flex items-center px-3 py-1.5 border border-gray-600 shadow-sm text-xs font-medium rounded-md text-gray-300 bg-gray-700 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                >
-                                    Edit Education
-                                </button>
-                            </div>
-                            <div className="border-t border-gray-600">
-                                {profile?.education && profile.education.length > 0 ? (
-                                    <ul className="divide-y divide-gray-600">
-                                        {profile.education.map((edu) => (
-                                            <li key={edu.id} className="px-4 py-4 sm:px-6">
-                                                <div className="flex flex-col">
-                                                    <p className="text-sm font-medium text-blue-400">
-                                                        {edu.degree} in {edu.field}
-                                                    </p>
-                                                    <p className="mt-1 text-sm text-gray-300">{edu.institution}</p>
-                                                    <p className="mt-1 text-xs text-gray-400">
-                                                        {new Date(edu.startDate).toLocaleDateString()} - {new Date(edu.endDate).toLocaleDateString()}
-                                                        {edu.gpa && ` • GPA: ${edu.gpa}`}
-                                                    </p>
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                ) : (
-                                    <div className="px-4 py-5 sm:px-6 text-center">
-                                        <p className="text-sm text-gray-400">No education information added yet.</p>
-                                    </div>
-                                )}
-                            </div>
+                            </form>
                         </div>
 
-                        {/* Work Experience section */}
-                        <div className="bg-gray-800 border border-gray-600 shadow overflow-hidden sm:rounded-lg">
-                            <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
-                                <div>
-                                    <h2 className="text-lg font-medium text-white">Work Experience</h2>
-                                    <p className="mt-1 text-sm text-gray-400">Your professional experience</p>
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={() => router.push('/profile/setup')}
-                                    className="inline-flex items-center px-3 py-1.5 border border-gray-600 shadow-sm text-xs font-medium rounded-md text-gray-300 bg-gray-700 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                >
-                                    Edit Experience
-                                </button>
-                            </div>
-                            <div className="border-t border-gray-600">
-                                {profile?.workExperience && profile.workExperience.length > 0 ? (
-                                    <ul className="divide-y divide-gray-600">
-                                        {profile.workExperience.map((exp) => (
-                                            <li key={exp.id} className="px-4 py-4 sm:px-6">
-                                                <div className="flex flex-col">
-                                                    <p className="text-sm font-medium text-blue-400">{exp.position}</p>
-                                                    <p className="mt-1 text-sm text-gray-300">{exp.company}</p>
-                                                    <p className="mt-1 text-xs text-gray-400">
-                                                        {new Date(exp.startDate).toLocaleDateString()} - {new Date(exp.endDate).toLocaleDateString()}
-                                                    </p>
-                                                    <ul className="mt-2 text-sm text-gray-300 list-disc list-inside">
-                                                        {exp.description.map((bullet, index) => (
-                                                            <li key={index}>{bullet}</li>
-                                                        ))}
-                                                    </ul>
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                ) : (
-                                    <div className="px-4 py-5 sm:px-6 text-center">
-                                        <p className="text-sm text-gray-400">No work experience added yet.</p>
+                        {/* Profile Sections Grid */}
+                        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                            {/* Education section */}
+                            <div className={getCardClasses()}>
+                                <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
+                                    <div>
+                                        <h2 className="text-lg font-medium text-white">Education</h2>
+                                        <p className="mt-1 text-sm text-gray-400">Your academic background</p>
                                     </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Skills section */}
-                        <div className="bg-gray-800 border border-gray-600 shadow overflow-hidden sm:rounded-lg">
-                            <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
-                                <div>
-                                    <h2 className="text-lg font-medium text-white">Skills</h2>
-                                    <p className="mt-1 text-sm text-gray-400">Your technical and soft skills</p>
+                                    <button
+                                        type="button"
+                                        onClick={() => router.push('/profile/setup')}
+                                        className={getButtonClasses('secondary')}
+                                    >
+                                        Edit Education
+                                    </button>
                                 </div>
-                                <button
-                                    type="button"
-                                    onClick={() => router.push('/profile/setup')}
-                                    className="inline-flex items-center px-3 py-1.5 border border-gray-600 shadow-sm text-xs font-medium rounded-md text-gray-300 bg-gray-700 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                >
-                                    Edit Skills
-                                </button>
-                            </div>
-                            <div className="border-t border-gray-600 px-4 py-5 sm:p-6">
-                                {profile?.skills && profile.skills.length > 0 ? (
-                                    <div className="flex flex-wrap gap-2">
-                                        {profile.skills.map((skill) => (
-                                            <span key={skill.id} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-900/20 text-blue-300 border border-blue-600/30">
-                                                {skill.name}
-                                                {skill.level && (
-                                                    <span className="ml-1 text-xs text-blue-400">
-                                                        ({skill.level})
-                                                    </span>
-                                                )}
-                                            </span>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="text-center">
-                                        <p className="text-sm text-gray-400">No skills added yet.</p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Projects section */}
-                        <div className="bg-gray-800 border border-gray-600 shadow overflow-hidden sm:rounded-lg">
-                            <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
-                                <div>
-                                    <h2 className="text-lg font-medium text-white">Projects</h2>
-                                    <p className="mt-1 text-sm text-gray-400">Your personal and academic projects</p>
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={() => router.push('/profile/setup')}
-                                    className="inline-flex items-center px-3 py-1.5 border border-gray-600 shadow-sm text-xs font-medium rounded-md text-gray-300 bg-gray-700 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                >
-                                    Edit Projects
-                                </button>
-                            </div>
-                            <div className="border-t border-gray-600">
-                                {profile?.projects && profile.projects.length > 0 ? (
-                                    <ul className="divide-y divide-gray-600">
-                                        {profile.projects.map((project) => (
-                                            <li key={project.id} className="px-4 py-4 sm:px-6">
-                                                <div className="flex flex-col">
-                                                    <div className="flex items-center">
-                                                        <p className="text-sm font-medium text-blue-400">{project.name}</p>
-                                                        {project.link && (
-                                                            <a
-                                                                href={project.link}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="ml-2 text-xs text-gray-400 hover:text-gray-300"
-                                                            >
-                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                                                </svg>
-                                                            </a>
-                                                        )}
-
+                                <div className="border-t border-gray-600">
+                                    {profile?.education && profile.education.length > 0 ? (
+                                        <ul className="divide-y divide-gray-600">
+                                            {profile.education.map((edu) => (
+                                                <li key={edu.id} className="px-4 py-4 sm:px-6">
+                                                    <div className="flex flex-col">
+                                                        <p className="text-sm font-medium text-blue-400">
+                                                            {edu.degree} in {edu.field}
+                                                        </p>
+                                                        <p className="mt-1 text-sm text-gray-300">{edu.institution}</p>
+                                                        <p className="mt-1 text-xs text-gray-400">
+                                                            {new Date(edu.startDate).toLocaleDateString()} - {new Date(edu.endDate).toLocaleDateString()}
+                                                            {edu.gpa && ` • GPA: ${edu.gpa}`}
+                                                        </p>
                                                     </div>
-                                                    <ul className="mt-2 text-sm text-gray-300 list-disc list-inside">
-                                                        {project.description.map((bullet, index) => (
-                                                            <li key={index}>{bullet}</li>
-                                                        ))}
-                                                    </ul>
-                                                    <div className="mt-2 flex flex-wrap gap-1">
-                                                        {project.technologies.map((tech, index) => (
-                                                            <span key={index} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-700 text-gray-300 border border-gray-600">
-                                                                {tech}
-                                                            </span>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                ) : (
-                                    <div className="px-4 py-5 sm:px-6 text-center">
-                                        <p className="text-sm text-gray-400">No projects added yet.</p>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <div className="px-4 py-5 sm:px-6 text-center">
+                                            <p className="text-sm text-gray-400">No education information added yet.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Work Experience section */}
+                            <div className={getCardClasses()}>
+                                <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
+                                    <div>
+                                        <h2 className="text-lg font-medium text-white">Work Experience</h2>
+                                        <p className="mt-1 text-sm text-gray-400">Your professional experience</p>
                                     </div>
-                                )}
+                                    <button
+                                        type="button"
+                                        onClick={() => router.push('/profile/setup')}
+                                        className={getButtonClasses('secondary')}
+                                    >
+                                        Edit Experience
+                                    </button>
+                                </div>
+                                <div className="border-t border-gray-600">
+                                    {profile?.workExperience && profile.workExperience.length > 0 ? (
+                                        <ul className="divide-y divide-gray-600">
+                                            {profile.workExperience.map((exp) => (
+                                                <li key={exp.id} className="px-4 py-4 sm:px-6">
+                                                    <div className="flex flex-col">
+                                                        <p className="text-sm font-medium text-blue-400">{exp.position}</p>
+                                                        <p className="mt-1 text-sm text-gray-300">{exp.company}</p>
+                                                        <p className="mt-1 text-xs text-gray-400">
+                                                            {new Date(exp.startDate).toLocaleDateString()} - {new Date(exp.endDate).toLocaleDateString()}
+                                                        </p>
+                                                        <ul className="mt-2 text-sm text-gray-300 list-disc list-inside">
+                                                            {exp.description.map((bullet, index) => (
+                                                                <li key={index}>{bullet}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <div className="px-4 py-5 sm:px-6 text-center">
+                                            <p className="text-sm text-gray-400">No work experience added yet.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Skills section */}
+                            <div className={getCardClasses()}>
+                                <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
+                                    <div>
+                                        <h2 className="text-lg font-medium text-white">Skills</h2>
+                                        <p className="mt-1 text-sm text-gray-400">Your technical and soft skills</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => router.push('/profile/setup')}
+                                        className={getButtonClasses('secondary')}
+                                    >
+                                        Edit Skills
+                                    </button>
+                                </div>
+                                <div className="border-t border-gray-600 px-4 py-5 sm:p-6">
+                                    {profile?.skills && profile.skills.length > 0 ? (
+                                        <div className="flex flex-wrap gap-2">
+                                            {profile.skills.map((skill) => (
+                                                <span key={skill.id} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-900/20 text-blue-300 border border-blue-600/30">
+                                                    {skill.name}
+                                                    {skill.level && (
+                                                        <span className="ml-1 text-xs text-blue-400">
+                                                            ({skill.level})
+                                                        </span>
+                                                    )}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="text-center">
+                                            <p className="text-sm text-gray-400">No skills added yet.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Projects section */}
+                            <div className={getCardClasses()}>
+                                <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
+                                    <div>
+                                        <h2 className="text-lg font-medium text-white">Projects</h2>
+                                        <p className="mt-1 text-sm text-gray-400">Your personal and academic projects</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => router.push('/profile/setup')}
+                                        className={getButtonClasses('secondary')}
+                                    >
+                                        Edit Projects
+                                    </button>
+                                </div>
+                                <div className="border-t border-gray-600">
+                                    {profile?.projects && profile.projects.length > 0 ? (
+                                        <ul className="divide-y divide-gray-600">
+                                            {profile.projects.map((project) => (
+                                                <li key={project.id} className="px-4 py-4 sm:px-6">
+                                                    <div className="flex flex-col">
+                                                        <div className="flex items-center">
+                                                            <p className="text-sm font-medium text-blue-400">{project.name}</p>
+                                                            {project.link && (
+                                                                <a
+                                                                    href={project.link}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="ml-2 text-xs text-gray-400 hover:text-gray-300"
+                                                                >
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                                    </svg>
+                                                                </a>
+                                                            )}
+                                                        </div>
+                                                        <ul className="mt-2 text-sm text-gray-300 list-disc list-inside">
+                                                            {project.description.map((bullet, index) => (
+                                                                <li key={index}>{bullet}</li>
+                                                            ))}
+                                                        </ul>
+                                                        <div className="mt-2 flex flex-wrap gap-1">
+                                                            {project.technologies.map((tech, index) => (
+                                                                <span key={index} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-700 text-gray-300 border border-gray-600">
+                                                                    {tech}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <div className="px-4 py-5 sm:px-6 text-center">
+                                            <p className="text-sm text-gray-400">No projects added yet.</p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </PageWrapper>
+            </div>
         </PrivateRoute>
     );
 }

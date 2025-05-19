@@ -155,11 +155,13 @@ export const generateQuestions = async (
 
         try {
             const parsedContent = JSON.parse(content);
+            // Handle different possible response formats
             if (Array.isArray(parsedContent)) {
                 return parsedContent;
             } else if (parsedContent.questions && Array.isArray(parsedContent.questions)) {
                 return parsedContent.questions;
             } else {
+                // Create fallback questions if format is unexpected
                 console.error("Unexpected response format:", parsedContent);
                 return categories.map((category, index) => ({
                     text: `Interview question ${index + 1} for ${category} category`,
@@ -168,6 +170,7 @@ export const generateQuestions = async (
             }
         } catch (parseError) {
             console.error("Error parsing JSON response:", parseError);
+            // Create fallback questions if parsing fails
             return categories.map((category, index) => ({
                 text: `Interview question ${index + 1} for ${category} category`,
                 category: category
@@ -175,6 +178,7 @@ export const generateQuestions = async (
         }
     } catch (error) {
         console.error("Error generating questions:", error);
+        // Create fallback questions if API call fails
         return categories.map((category, index) => ({
             text: `Interview question ${index + 1} for ${category} category`,
             category: category
@@ -263,11 +267,13 @@ export const suggestTags = async (
 
         try {
             const parsedContent = JSON.parse(content);
+            // Handle different possible response formats
             if (Array.isArray(parsedContent)) {
                 return parsedContent;
             } else if (parsedContent.tags && Array.isArray(parsedContent.tags)) {
                 return parsedContent.tags;
             } else {
+                // Extract all values if format is unexpected
                 const allValues = Object.values(parsedContent).flat();
                 return Array.isArray(allValues) ?
                     allValues.filter(v => typeof v === 'string') :

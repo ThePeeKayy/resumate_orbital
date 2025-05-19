@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Resumate",
-  description: "Improve resume application",
+  title: "resuMate",
+  description: "Interview and Job AI Assistant",
 };
 
 export default function RootLayout({
@@ -27,18 +27,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-700 min-h-screen`}
-      >
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className="antialiased">
         <AuthProvider>
           <ToastProvider />
+          {/* Fixed navbar container */}
           <div className="fixed top-0 left-0 right-0 z-50 w-full">
             <Nav />
           </div>
-          <div className="min-h-screen">
+          {/* Main content area with proper spacing */}
+          <main className="min-h-screen-safe">
             {children}
-          </div>
+          </main>
         </AuthProvider>
       </body>
     </html>
