@@ -20,7 +20,7 @@ import SkillForm from '../../ui/components/profile/forms/SkillForm';
 import ExtracurricularForm from '../../ui/components/profile/forms/ExtracurricularForm';
 
 export default function ProfileSetup() {
-    const { currentUser } = useAuth();
+    const { currentUser, refreshProfileStatus } = useAuth();
     const router = useRouter();
     const [activeStep, setActiveStep] = useState(0);
     const [loading, setLoading] = useState(false);
@@ -406,9 +406,13 @@ export default function ProfileSetup() {
             } else {
                 // Create new profile
                 await createUserProfile(profile as UserProfile);
-                toast.success('Profile created successfully!');
+                toast.success('Profile created successfully! Welcome to resuMate!');
             }
 
+            // Refresh the profile status in auth context
+            await refreshProfileStatus();
+
+            // Navigate to dashboard
             router.push('/dashboard');
         } catch (error) {
             console.error('Error saving profile:', error);
@@ -736,12 +740,12 @@ export default function ProfileSetup() {
                                 </svg>
                             </div>
                             <div className="ml-3">
-                                <h3 className="text-sm font-medium text-yellow-300">Important Note</h3>
+                                <h3 className="text-sm font-medium text-yellow-300">Ready to get started!</h3>
                                 <div className="mt-2 text-sm text-yellow-200">
                                     <p>
                                         {isEditMode
-                                            ? 'You are updating your existing profile. Make sure all required fields are filled in correctly.'
-                                            : 'Once you submit your profile, you\'ll be able to edit it later from the "My Profile" section. Make sure all required fields are filled in correctly.'}
+                                            ? 'You are updating your existing profile. Once saved, you\'ll have access to all resuMate features.'
+                                            : 'Once you submit your profile, you\'ll have access to personalized interview questions, AI feedback, and job tracking features.'}
                                     </p>
                                 </div>
                             </div>
@@ -855,9 +859,9 @@ export default function ProfileSetup() {
                                 type="button"
                                 onClick={handleSubmitProfile}
                                 disabled={loading}
-                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transform transition-all hover:scale-105"
                             >
-                                {loading ? 'Submitting...' : isEditMode ? 'Update Profile' : 'Submit Profile'}
+                                {loading ? 'Submitting...' : isEditMode ? 'Update Profile' : '🎉 Complete Setup'}
                             </button>
                         ) : (
                             <button

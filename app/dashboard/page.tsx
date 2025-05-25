@@ -15,13 +15,15 @@ import { JobStatus } from '../types';
 import Link from 'next/link';
 
 export default function Dashboard() {
-    const { currentUser } = useAuth();
+    const { currentUser, profileComplete } = useAuth();
     const router = useRouter();
 
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [recentAnswers, setRecentAnswers] = useState<Answer[]>([]);
     const [jobs, setJobs] = useState<Job[]>([]);
     const [loading, setLoading] = useState(true);
+    const [showWelcome, setShowWelcome] = useState(false);
+    const [updatingJobId, setUpdatingJobId] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -34,12 +36,15 @@ export default function Dashboard() {
                 const userProfile = await getUserProfile(currentUser.uid);
                 setProfile(userProfile);
 
-                // Check if profile is complete, if not redirect to profile setup
-                if (!userProfile) {
-                    toast('Please complete your profile before proceeding');
-                    router.push('/profile/setup');
-                    return;
+                // Check if this is a first-time visit after profile completion
+                const hasShownWelcome = localStorage.getItem(`welcome_shown_${currentUser.uid}`);
+                if (profileComplete && !hasShownWelcome) {
+                    setShowWelcome(true);
+                    localStorage.setItem(`welcome_shown_${currentUser.uid}`, 'true');
                 }
+
+                // ProfileCheck component handles profile completion requirement
+                // So we can proceed with fetching data if we reach here
 
                 // Fetch recent answers
                 const allAnswers = await getAnswers(currentUser.uid);
@@ -58,7 +63,7 @@ export default function Dashboard() {
         };
 
         fetchDashboardData();
-    }, [currentUser, router]);
+    }, [currentUser, profileComplete]);
 
     // Get job name by ID
     const getJobName = (jobId: string) => {
@@ -87,7 +92,10 @@ export default function Dashboard() {
             <PrivateRoute>
                 <ProfileCheck>
                     <div className="min-h-screen bg-gray-700 flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-400"></div>
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-400 mx-auto mb-4"></div>
+                            <p className="text-gray-300">Loading your dashboard...</p>
+                        </div>
                     </div>
                 </ProfileCheck>
             </PrivateRoute>
@@ -95,6 +103,10 @@ export default function Dashboard() {
     }
 
     const handleQuickStatusUpdate = async (jobId: string, newStatus: JobStatus) => {
+        if (updatingJobId) return; // Prevent multiple simultaneous updates
+        
+        setUpdatingJobId(jobId);
+        
         try {
             await updateJobStatus(jobId, newStatus);
             setJobs(prevJobs => 
@@ -106,9 +118,62 @@ export default function Dashboard() {
         } catch (error) {
             console.error('Error updating job status:', error);
             toast.error('Failed to update job status');
+        } finally {
+            setUpdatingJobId(null);
         }
     };
 
+    // Welcome banner for first-time users
+    const WelcomeBanner = () => {
+        if (!showWelcome) return null;
+
+        return (
+            <div className="mb-6 bg-gradient-to-r from-blue-900/40 to-purple-900/40 border border-blue-600/30 rounded-lg p-6">
+                <div className="flex items-start">
+                    <div className="flex-shrink-0">
+                        <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-600">
+                            <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div className="ml-4 flex-1">
+                        <h3 className="text-lg font-medium text-white">
+                            🎉 Welcome to resuMate, {profile?.name}!
+                        </h3>
+                        <p className="mt-2 text-blue-200">
+                            Your profile is complete! Now you can start practicing with personalized interview questions, 
+                            track your job applications, and get AI-powered feedback to improve your interview skills.
+                        </p>
+                        <div className="mt-4 flex space-x-3">
+                            <button
+                                onClick={() => router.push('/practice/setup')}
+                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                            >
+                                Start First Practice
+                            </button>
+                            <button
+                                onClick={() => setShowWelcome(false)}
+                                className="inline-flex items-center px-4 py-2 border border-blue-600 text-sm font-medium rounded-md text-blue-200 hover:bg-blue-900/20"
+                            >
+                                Got it
+                            </button>
+                        </div>
+                    </div>
+                    <div className="ml-4 flex-shrink-0">
+                        <button
+                            onClick={() => setShowWelcome(false)}
+                            className="inline-flex text-blue-400 hover:text-blue-300"
+                        >
+                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    };
 
     return (
         <PrivateRoute>
@@ -138,6 +203,9 @@ export default function Dashboard() {
                     </div>
 
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        {/* Welcome Banner */}
+                        <WelcomeBanner />
+
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                             {/* Quick actions card - with blue accent */}
                             <div className={`${getCardClasses()} hover:border-blue-500/40 transition-all duration-200`}>
@@ -186,10 +254,15 @@ export default function Dashboard() {
                                 <div className="border-t border-gray-600 px-4 py-5 sm:p-0">
                                     {recentAnswers.length === 0 ? (
                                         <div className="px-4 py-5 sm:px-6 text-center">
-                                            <p className="text-sm text-gray-400">You haven't saved any answers yet.</p>
+                                            <div className="w-12 h-12 mx-auto mb-4 bg-purple-900/20 border border-purple-600/30 rounded-full flex items-center justify-center">
+                                                <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                                </svg>
+                                            </div>
+                                            <p className="text-sm text-gray-400 mb-3">You haven't saved any answers yet.</p>
                                             <button
                                                 onClick={() => router.push('/practice/setup')}
-                                                className="mt-3 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200"
+                                                className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200"
                                             >
                                                 Start practicing
                                             </button>
@@ -237,10 +310,15 @@ export default function Dashboard() {
                                 <div className="border-t border-gray-600 px-4 py-5 sm:p-0">
                                     {jobs.length === 0 ? (
                                         <div className="px-4 py-5 sm:px-6 text-center">
-                                            <p className="text-sm text-gray-400">You haven't added any jobs yet.</p>
+                                            <div className="w-12 h-12 mx-auto mb-4 bg-green-900/20 border border-green-600/30 rounded-full flex items-center justify-center">
+                                                <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                                </svg>
+                                            </div>
+                                            <p className="text-sm text-gray-400 mb-3">You haven't added any jobs yet.</p>
                                             <button
                                                 onClick={() => router.push('/jobs/new')}
-                                                className="mt-3 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200"
+                                                className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200"
                                             >
                                                 Add job
                                             </button>
@@ -256,10 +334,15 @@ export default function Dashboard() {
                                                                 <p className="text-sm text-gray-400">{job.company}</p>
                                                             </Link>
                                                         </div>
-                                                        <div className="ml-4 flex-shrink-0">
+                                                        <div className="ml-4 flex-shrink-0 relative" onClick={(e) => e.stopPropagation()}>
                                                             <select
                                                                 value={job.status}
-                                                                onChange={(e) => handleQuickStatusUpdate(job.id, e.target.value as JobStatus)}
+                                                                onChange={(e) => {
+                                                                    e.preventDefault();
+                                                                    e.stopPropagation();
+                                                                    handleQuickStatusUpdate(job.id, e.target.value as JobStatus);
+                                                                }}
+                                                                disabled={updatingJobId === job.id}
                                                                 className={`
                                                                     inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer
                                                                     ${job.status === 'Drafted' ? 'bg-blue-100 text-blue-800' :
@@ -268,9 +351,10 @@ export default function Dashboard() {
                                                                     job.status === 'Offer' ? 'bg-green-100 text-green-800' :
                                                                     'bg-red-100 text-red-800'
                                                                     } 
-                                                                    hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-blue-500
+                                                                    ${updatingJobId === job.id ? 'opacity-50' : 'hover:opacity-80'}
+                                                                    focus:outline-none focus:ring-2 focus:ring-blue-500
                                                                     appearance-none -webkit-appearance-none -moz-appearance-none
-                                                                    pr-6
+                                                                    pr-6 disabled:cursor-not-allowed
                                                                 `}
                                                                 style={{
                                                                     backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23374151' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
@@ -286,6 +370,11 @@ export default function Dashboard() {
                                                                 <option value="Rejected">Rejected</option>
                                                             </select>
 
+                                                            {updatingJobId === job.id && (
+                                                                <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                                                                    <div className="animate-spin rounded-full h-3 w-3 border-t border-b border-current"></div>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 </li>

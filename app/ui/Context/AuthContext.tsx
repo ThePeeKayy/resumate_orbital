@@ -13,14 +13,18 @@ import {
 } from 'firebase/auth';
 import { auth, db } from '../../Services/firebase/config';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { getUserProfile } from '../../Services/firebase/firestore';
 
 interface AuthContextType {
     currentUser: User | null;
     loading: boolean;
+    profileComplete: boolean;
+    profileLoading: boolean;
     register: (email: string, password: string) => Promise<void>;
     login: (email: string, password: string) => Promise<UserCredential>;
     logout: () => Promise<void>;
     resetPassword: (email: string) => Promise<void>;
+    refreshProfileStatus: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -36,11 +40,48 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [profileComplete, setProfileComplete] = useState(false);
+    const [profileLoading, setProfileLoading] = useState(true);
+
+    // Check profile completion status
+    const checkProfileCompletion = async (user: User) => {
+        if (!user) {
+            setProfileComplete(false);
+            setProfileLoading(false);
+            return;
+        }
+
+        try {
+            const profile = await getUserProfile(user.uid);
+            const isComplete = !!profile && !!profile.name && !!profile.email;
+            setProfileComplete(isComplete);
+        } catch (error) {
+            console.error('Error checking profile completion:', error);
+            setProfileComplete(false);
+        } finally {
+            setProfileLoading(false);
+        }
+    };
+
+    // Refresh profile status (for use after profile creation/update)
+    const refreshProfileStatus = async () => {
+        if (currentUser) {
+            await checkProfileCompletion(currentUser);
+        }
+    };
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
             setCurrentUser(user);
             setLoading(false);
+            
+            if (user) {
+                setProfileLoading(true);
+                await checkProfileCompletion(user);
+            } else {
+                setProfileComplete(false);
+                setProfileLoading(false);
+            }
         });
 
         return unsubscribe;
@@ -55,6 +96,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             createdAt: serverTimestamp(),
             isProfileComplete: false
         });
+
+        // Profile is not complete for new users
+        setProfileComplete(false);
     };
 
     const login = (email: string, password: string) => {
@@ -62,6 +106,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const logout = () => {
+        setProfileComplete(false);
+        setProfileLoading(false);
         return signOut(auth);
     };
 
@@ -72,10 +118,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const value = {
         currentUser,
         loading,
+        profileComplete,
+        profileLoading,
         register,
         login,
         logout,
-        resetPassword
+        resetPassword,
+        refreshProfileStatus
     };
 
     return (
