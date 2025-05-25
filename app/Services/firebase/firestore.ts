@@ -169,6 +169,22 @@ export const getAnswers = async (userId: string): Promise<Answer[]> => {
     } as Answer));
 };
 
+
+
+export const updateAnswer = async (answer: Partial<Answer> & { id: string }) => {
+    const answerRef = doc(db, 'answers', answer.id);
+    await updateDoc(answerRef, {
+        ...answer,
+        updatedAt: serverTimestamp()
+    });
+};
+
+export const deleteAnswer = async (answerId: string) => {
+    const answerRef = doc(db, 'answers', answerId);
+    await deleteDoc(answerRef);
+};
+
+// Answer Functions (these may already exist, but here are the complete versions)
 export const getAnswersByJob = async (userId: string, jobId: string): Promise<Answer[]> => {
     const answersQuery = query(
         collection(db, 'answers'),
@@ -184,20 +200,63 @@ export const getAnswersByJob = async (userId: string, jobId: string): Promise<An
     } as Answer));
 };
 
-export const updateAnswer = async (answer: Partial<Answer> & { id: string }) => {
-    const answerRef = doc(db, 'answers', answer.id);
-    await updateDoc(answerRef, {
-        ...answer,
-        updatedAt: serverTimestamp()
-    });
-};
-
-export const deleteAnswer = async (answerId: string) => {
-    const answerRef = doc(db, 'answers', answerId);
-    await deleteDoc(answerRef);
-};
 
 // Practice Session Functions
+export const createPracticeSession = async (
+    userId: string,
+    categories: QuestionCategory[],
+    jobId?: string
+): Promise<string> => {
+    if (!userId) {
+        throw new Error('User ID is required');
+    }
+
+    if (!Array.isArray(categories) || categories.length === 0) {
+        throw new Error('At least one question category is required');
+    }
+
+    const sessionRef = collection(db, 'practice_sessions');
+    const newSession = await addDoc(sessionRef, {
+        userId,
+        jobId: jobId || null, // Ensure we store null, not undefined
+        categories,
+        questions: [], // Initialize with empty array
+        currentQuestionIndex: 0,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+    });
+
+    return newSession.id;
+};
+
+export const getPracticeSession = async (sessionId: string): Promise<PracticeSession | null> => {
+    if (!sessionId) {
+        console.error('Session ID is required');
+        return null;
+    }
+
+    const sessionRef = doc(db, 'practice_sessions', sessionId);
+    const sessionSnap = await getDoc(sessionRef);
+
+    if (sessionSnap.exists()) {
+        const data = sessionSnap.data();
+        // Ensure questions is always an array
+        const questions = Array.isArray(data.questions) ? data.questions : [];
+        // Ensure currentQuestionIndex is a valid number
+        const currentQuestionIndex = Number.isInteger(data.currentQuestionIndex) ?
+            data.currentQuestionIndex : 0;
+
+        return {
+            id: sessionSnap.id,
+            ...data,
+            questions,
+            currentQuestionIndex
+        } as PracticeSession;
+    }
+
+    return null;
+};
+
 export const updatePracticeSession = async (
     sessionId: string,
     questions: Question[],
@@ -244,60 +303,3 @@ export const updatePracticeSession = async (
     });
 };
 
-
-// Additional validation for createPracticeSession
-export const createPracticeSession = async (
-    userId: string,
-    categories: QuestionCategory[],
-    jobId?: string
-): Promise<string> => {
-    if (!userId) {
-        throw new Error('User ID is required');
-    }
-
-    if (!Array.isArray(categories) || categories.length === 0) {
-        throw new Error('At least one question category is required');
-    }
-
-    const sessionRef = collection(db, 'practice_sessions');
-    const newSession = await addDoc(sessionRef, {
-        userId,
-        jobId: jobId || null, // Ensure we store null, not undefined
-        categories,
-        questions: [], // Initialize with empty array
-        currentQuestionIndex: 0,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp() // Add updatedAt timestamp
-    });
-
-    return newSession.id;
-};
-
-// Update getPracticeSession to validate the session data
-export const getPracticeSession = async (sessionId: string): Promise<PracticeSession | null> => {
-    if (!sessionId) {
-        console.error('Session ID is required');
-        return null;
-    }
-
-    const sessionRef = doc(db, 'practice_sessions', sessionId);
-    const sessionSnap = await getDoc(sessionRef);
-
-    if (sessionSnap.exists()) {
-        const data = sessionSnap.data();
-        // Ensure questions is always an array
-        const questions = Array.isArray(data.questions) ? data.questions : [];
-        // Ensure currentQuestionIndex is a valid number
-        const currentQuestionIndex = Number.isInteger(data.currentQuestionIndex) ?
-            data.currentQuestionIndex : 0;
-
-        return {
-            id: sessionSnap.id,
-            ...data,
-            questions,
-            currentQuestionIndex
-        } as PracticeSession;
-    }
-
-    return null;
-};

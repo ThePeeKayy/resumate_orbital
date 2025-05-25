@@ -384,7 +384,7 @@ export default function Profile() {
                                         )}
                                     </div>
                                 </div>
-                                <div className="px-4 py-3 bg-gray-700 text-right sm:px-6">
+                                <div className="px-4 py-3 bg-gray-800 text-right sm:px-6 border-t border-gray-600">
                                     <button
                                         type="button"
                                         onClick={() => router.push('/profile/setup')}

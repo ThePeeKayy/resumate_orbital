@@ -1,3 +1,4 @@
+// app/jobs/new/page.tsx
 'use client'
 
 import React, { useState } from 'react';
@@ -61,14 +62,29 @@ export default function JobForm() {
         <PrivateRoute>
             <ProfileCheck>
                 <div className="min-h-screen bg-gray-700">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                        <div className="mb-6">
-                            <h1 className="text-2xl font-bold text-white">Add New Job</h1>
-                            <p className="mt-1 text-sm text-gray-400">
-                                Track a new job application and prepare for interviews
-                            </p>
+                    {/* Header - Added proper padding-top to account for fixed navbar */}
+                    <div className="bg-gray-700 border-b border-gray-600 px-4 sm:px-6 lg:px-8 py-6 pt-20">
+                        <div className="max-w-7xl mx-auto">
+                            <div className="flex items-center">
+                                <button
+                                    onClick={() => router.back()}
+                                    className="mr-4 text-gray-400 hover:text-gray-300 transition-colors"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                    </svg>
+                                </button>
+                                <div>
+                                    <h1 className="text-2xl font-bold text-white">Add New Job</h1>
+                                    <p className="mt-1 text-gray-400">
+                                        Track a new job application and prepare for interviews
+                                    </p>
+                                </div>
+                            </div>
                         </div>
+                    </div>
 
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                         <div className={getCardClasses()}>
                             <form onSubmit={handleSubmit}>
                                 <div className="px-4 py-5 sm:p-6">

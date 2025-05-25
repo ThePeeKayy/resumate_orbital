@@ -7,7 +7,9 @@ import { useAuth } from '../ui/Context/AuthContext';
 import { getUserProfile, getAnswers, getJobs } from '../Services/firebase/firestore';
 import { UserProfile, Answer, Job } from '../types';
 import toast from 'react-hot-toast';
-import { getCardClasses } from '../ui/styles/theme';
+import PrivateRoute from '../ui/components/PrivateRoute';
+import ProfileCheck from '../ui/components/ProfileCheck';
+import { getCardClasses, getButtonClasses } from '../ui/styles/theme';
 
 export default function Dashboard() {
     const { currentUser } = useAuth();
@@ -79,191 +81,249 @@ export default function Dashboard() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-700 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-400"></div>
-            </div>
+            <PrivateRoute>
+                <ProfileCheck>
+                    <div className="min-h-screen bg-gray-700 flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-400"></div>
+                    </div>
+                </ProfileCheck>
+            </PrivateRoute>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-700">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="mb-8">
-                    <h1 className="text-2xl font-bold text-white">Welcome, {profile?.name}!</h1>
-                    <p className="mt-1 text-gray-300">Your interview preparation dashboard</p>
-                </div>
-
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {/* Quick actions card - with blue accent */}
-                    <div className={`${getCardClasses()} hover:border-blue-500/40 transition-all duration-200`}>
-                        <div className="px-4 py-5 sm:p-6">
-                            <h2 className="text-lg font-medium text-white mb-4">Quick Actions</h2>
-                            <div className="space-y-3">
-                                <button
-                                    onClick={() => router.push('/practice/setup')}
-                                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
-                                >
-                                    Start Practice Session
-                                </button>
-                                <button
-                                    onClick={() => router.push('/jobs/new')}
-                                    className="w-full flex justify-center py-2 px-4 border border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transition-all duration-200"
-                                >
-                                    Add New Job
-                                </button>
-                                <button
-                                    onClick={() => router.push('/profile')}
-                                    className="w-full flex justify-center py-2 px-4 border border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transition-all duration-200"
-                                >
-                                    Update Profile
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Recent answers card */}
-                    <div className={`${getCardClasses()} hover:border-purple-500/40 transition-all duration-200`}>
-                        <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
-                            <div>
-                                <h2 className="text-lg font-medium text-white">Recent Answers</h2>
-                                <p className="mt-1 text-sm text-gray-400">Your latest practice responses</p>
-                            </div>
-                            <button
-                                onClick={() => router.push('/answers')}
-                                className="inline-flex items-center text-sm font-medium text-blue-400 hover:text-blue-300"
-                            >
-                                View all
-                                <svg className="ml-1 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                                </svg>
-                            </button>
-                        </div>
-                        <div className="border-t border-gray-600 px-4 py-5 sm:p-0">
-                            {recentAnswers.length === 0 ? (
-                                <div className="px-4 py-5 sm:px-6 text-center">
-                                    <p className="text-sm text-gray-400">You haven't saved any answers yet.</p>
+        <PrivateRoute>
+            <ProfileCheck>
+                <div className="min-h-screen bg-gray-700">
+                    {/* Header - Added proper padding-top to account for fixed navbar */}
+                    <div className="bg-gray-700 border-b border-gray-600 px-4 sm:px-6 lg:px-8 py-6 pt-20">
+                        <div className="max-w-7xl mx-auto">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                                <div className="mb-4 sm:mb-0">
+                                    <h1 className="text-2xl font-bold text-white">Welcome, {profile?.name}!</h1>
+                                    <p className="mt-1 text-gray-400">Your interview preparation dashboard</p>
+                                </div>
+                                <div className="flex space-x-3">
                                     <button
                                         onClick={() => router.push('/practice/setup')}
-                                        className="mt-3 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200"
+                                        className={`${getButtonClasses('primary')} transform transition-all hover:scale-105`}
                                     >
-                                        Start practicing
+                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                        </svg>
+                                        Start Practice
                                     </button>
                                 </div>
-                            ) : (
-                                <ul className="divide-y divide-gray-600">
-                                    {recentAnswers.map((answer) => (
-                                        <li key={answer.id} className="px-4 py-4 sm:px-6">
-                                            <div className="flex items-center mb-1">
-                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCategoryBadgeColor(answer.category)}`}>
-                                                    {answer.category}
-                                                </span>
-                                                {answer.jobId && (
-                                                    <span className="ml-2 text-xs text-gray-400">
-                                                        {getJobName(answer.jobId)}
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <p className="text-sm font-medium text-white truncate">{answer.questionText}</p>
-                                            <p className="mt-1 text-sm text-gray-400 line-clamp-2">{answer.answerText}</p>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
+                            </div>
                         </div>
                     </div>
 
-                    {/* Job applications card */}
-                    <div className={`${getCardClasses()} hover:border-green-500/40 transition-all duration-200`}>
-                        <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
-                            <div>
-                                <h2 className="text-lg font-medium text-white">Job Applications</h2>
-                                <p className="mt-1 text-sm text-gray-400">Track your job search progress</p>
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                            {/* Quick actions card - with blue accent */}
+                            <div className={`${getCardClasses()} hover:border-blue-500/40 transition-all duration-200`}>
+                                <div className="px-4 py-5 sm:p-6">
+                                    <h2 className="text-lg font-medium text-white mb-4">Quick Actions</h2>
+                                    <div className="space-y-3">
+                                        <button
+                                            onClick={() => router.push('/practice/setup')}
+                                            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+                                        >
+                                            Start Practice Session
+                                        </button>
+                                        <button
+                                            onClick={() => router.push('/jobs/new')}
+                                            className="w-full flex justify-center py-2 px-4 border border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transition-all duration-200"
+                                        >
+                                            Add New Job
+                                        </button>
+                                        <button
+                                            onClick={() => router.push('/profile')}
+                                            className="w-full flex justify-center py-2 px-4 border border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transition-all duration-200"
+                                        >
+                                            Update Profile
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                            <button
-                                onClick={() => router.push('/jobs')}
-                                className="inline-flex items-center text-sm font-medium text-blue-400 hover:text-blue-300"
-                            >
-                                View all
-                                <svg className="ml-1 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                                </svg>
-                            </button>
+
+                            {/* Recent answers card */}
+                            <div className={`${getCardClasses()} hover:border-purple-500/40 transition-all duration-200`}>
+                                <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
+                                    <div>
+                                        <h2 className="text-lg font-medium text-white">Recent Answers</h2>
+                                        <p className="mt-1 text-sm text-gray-400">Your latest practice responses</p>
+                                    </div>
+                                    <button
+                                        onClick={() => router.push('/answers')}
+                                        className="inline-flex items-center text-sm font-medium text-blue-400 hover:text-blue-300"
+                                    >
+                                        View all
+                                        <svg className="ml-1 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div className="border-t border-gray-600 px-4 py-5 sm:p-0">
+                                    {recentAnswers.length === 0 ? (
+                                        <div className="px-4 py-5 sm:px-6 text-center">
+                                            <p className="text-sm text-gray-400">You haven't saved any answers yet.</p>
+                                            <button
+                                                onClick={() => router.push('/practice/setup')}
+                                                className="mt-3 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200"
+                                            >
+                                                Start practicing
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <ul className="divide-y divide-gray-600">
+                                            {recentAnswers.map((answer) => (
+                                                <li key={answer.id} className="px-4 py-4 sm:px-6">
+                                                    <div className="flex items-center mb-1">
+                                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCategoryBadgeColor(answer.category)}`}>
+                                                            {answer.category}
+                                                        </span>
+                                                        {answer.jobId && (
+                                                            <span className="ml-2 text-xs text-gray-400">
+                                                                {getJobName(answer.jobId)}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-sm font-medium text-white truncate">{answer.questionText}</p>
+                                                    <p className="mt-1 text-sm text-gray-400 line-clamp-2">{answer.answerText}</p>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Job applications card */}
+                            <div className={`${getCardClasses()} hover:border-green-500/40 transition-all duration-200`}>
+                                <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
+                                    <div>
+                                        <h2 className="text-lg font-medium text-white">Job Applications</h2>
+                                        <p className="mt-1 text-sm text-gray-400">Track your job search progress</p>
+                                    </div>
+                                    <button
+                                        onClick={() => router.push('/jobs')}
+                                        className="inline-flex items-center text-sm font-medium text-blue-400 hover:text-blue-300"
+                                    >
+                                        View all
+                                        <svg className="ml-1 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div className="border-t border-gray-600 px-4 py-5 sm:p-0">
+                                    {jobs.length === 0 ? (
+                                        <div className="px-4 py-5 sm:px-6 text-center">
+                                            <p className="text-sm text-gray-400">You haven't added any jobs yet.</p>
+                                            <button
+                                                onClick={() => router.push('/jobs/new')}
+                                                className="mt-3 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200"
+                                            >
+                                                Add job
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <ul className="divide-y divide-gray-600">
+                                            {jobs.slice(0, 5).map((job) => (
+                                                <li key={job.id} className="px-4 py-4 sm:px-6">
+                                                    <div className="flex justify-between">
+                                                        <div>
+                                                            <p className="text-sm font-medium text-white">{job.title}</p>
+                                                            <p className="text-sm text-gray-400">{job.company}</p>
+                                                        </div>
+                                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${job.status === 'Drafted' ? 'bg-blue-100 text-blue-800' :
+                                                                job.status === 'Submitted' ? 'bg-yellow-100 text-yellow-800' :
+                                                                    job.status === 'Interviewing' ? 'bg-purple-100 text-purple-800' :
+                                                                        job.status === 'Offer' ? 'bg-green-100 text-green-800' :
+                                                                            'bg-red-100 text-red-800'
+                                                            }`}>
+                                                            {job.status}
+                                                        </span>
+                                                    </div>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
+                            </div>
                         </div>
-                        <div className="border-t border-gray-600 px-4 py-5 sm:p-0">
-                            {jobs.length === 0 ? (
-                                <div className="px-4 py-5 sm:px-6 text-center">
-                                    <p className="text-sm text-gray-400">You haven't added any jobs yet.</p>
+
+                        {/* Stats card */}
+                        <div className={`mt-8 ${getCardClasses()}`}>
+                            <div className="px-4 py-5 sm:p-6">
+                                <h2 className="text-lg font-medium text-white mb-4">Your Progress</h2>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div className="bg-blue-900/20 border border-blue-600/30 overflow-hidden shadow rounded-lg hover:border-blue-600/50 transition-all duration-200">
+                                        <div className="px-4 py-5 sm:p-6">
+                                            <dt className="text-sm font-medium text-blue-200 truncate">Total Answers</dt>
+                                            <dd className="mt-1 text-3xl font-semibold text-white">{recentAnswers.length}</dd>
+                                        </div>
+                                    </div>
+                                    <div className="bg-purple-900/20 border border-purple-600/30 overflow-hidden shadow rounded-lg hover:border-purple-600/50 transition-all duration-200">
+                                        <div className="px-4 py-5 sm:p-6">
+                                            <dt className="text-sm font-medium text-purple-200 truncate">Jobs Tracked</dt>
+                                            <dd className="mt-1 text-3xl font-semibold text-white">{jobs.length}</dd>
+                                        </div>
+                                    </div>
+                                    <div className="bg-indigo-900/20 border border-indigo-600/30 overflow-hidden shadow rounded-lg hover:border-indigo-600/50 transition-all duration-200">
+                                        <div className="px-4 py-5 sm:p-6">
+                                            <dt className="text-sm font-medium text-indigo-200 truncate">Job Interviews</dt>
+                                            <dd className="mt-1 text-3xl font-semibold text-white">
+                                                {jobs.filter(job => job.status === 'Interviewing').length}
+                                            </dd>
+                                        </div>
+                                    </div>
+                                    <div className="bg-green-900/20 border border-green-600/30 overflow-hidden shadow rounded-lg hover:border-green-600/50 transition-all duration-200">
+                                        <div className="px-4 py-5 sm:p-6">
+                                            <dt className="text-sm font-medium text-green-200 truncate">Job Offers</dt>
+                                            <dd className="mt-1 text-3xl font-semibold text-white">
+                                                {jobs.filter(job => job.status === 'Offer').length}
+                                            </dd>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Quick Action Buttons */}
+                                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <button
+                                        onClick={() => router.push('/practice/setup')}
+                                        className="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105"
+                                    >
+                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                        </svg>
+                                        Start Practice
+                                    </button>
+
+                                    <button
+                                        onClick={() => router.push('/answers')}
+                                        className="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105"
+                                    >
+                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                        </svg>
+                                        View Answers
+                                    </button>
+
                                     <button
                                         onClick={() => router.push('/jobs/new')}
-                                        className="mt-3 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200"
+                                        className="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105"
                                     >
-                                        Add job
+                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                        Add Job
                                     </button>
                                 </div>
-                            ) : (
-                                <ul className="divide-y divide-gray-600">
-                                    {jobs.slice(0, 5).map((job) => (
-                                        <li key={job.id} className="px-4 py-4 sm:px-6">
-                                            <div className="flex justify-between">
-                                                <div>
-                                                    <p className="text-sm font-medium text-white">{job.title}</p>
-                                                    <p className="text-sm text-gray-400">{job.company}</p>
-                                                </div>
-                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                                    job.status === 'Drafted' ? 'bg-blue-100 text-blue-800' :
-                                                    job.status === 'Submitted' ? 'bg-yellow-100 text-yellow-800' :
-                                                    job.status === 'Interviewing' ? 'bg-purple-100 text-purple-800' :
-                                                    job.status === 'Offer' ? 'bg-green-100 text-green-800' :
-                                                    'bg-red-100 text-red-800'
-                                                }`}>
-                                                    {job.status}
-                                                </span>
-                                            </div>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Stats card */}
-                <div className={`mt-8 ${getCardClasses()}`}>
-                    <div className="px-4 py-5 sm:p-6">
-                        <h2 className="text-lg font-medium text-white mb-4">Your Progress</h2>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div className="bg-blue-900/20 border border-blue-600/30 overflow-hidden shadow rounded-lg hover:border-blue-600/50 transition-all duration-200">
-                                <div className="px-4 py-5 sm:p-6">
-                                    <dt className="text-sm font-medium text-blue-200 truncate">Total Answers</dt>
-                                    <dd className="mt-1 text-3xl font-semibold text-white">{recentAnswers.length}</dd>
-                                </div>
-                            </div>
-                            <div className="bg-purple-900/20 border border-purple-600/30 overflow-hidden shadow rounded-lg hover:border-purple-600/50 transition-all duration-200">
-                                <div className="px-4 py-5 sm:p-6">
-                                    <dt className="text-sm font-medium text-purple-200 truncate">Jobs Tracked</dt>
-                                    <dd className="mt-1 text-3xl font-semibold text-white">{jobs.length}</dd>
-                                </div>
-                            </div>
-                            <div className="bg-indigo-900/20 border border-indigo-600/30 overflow-hidden shadow rounded-lg hover:border-indigo-600/50 transition-all duration-200">
-                                <div className="px-4 py-5 sm:p-6">
-                                    <dt className="text-sm font-medium text-indigo-200 truncate">Job Interviews</dt>
-                                    <dd className="mt-1 text-3xl font-semibold text-white">
-                                        {jobs.filter(job => job.status === 'Interviewing').length}
-                                    </dd>
-                                </div>
-                            </div>
-                            <div className="bg-green-900/20 border border-green-600/30 overflow-hidden shadow rounded-lg hover:border-green-600/50 transition-all duration-200">
-                                <div className="px-4 py-5 sm:p-6">
-                                    <dt className="text-sm font-medium text-green-200 truncate">Job Offers</dt>
-                                    <dd className="mt-1 text-3xl font-semibold text-white">
-                                        {jobs.filter(job => job.status === 'Offer').length}
-                                    </dd>
-                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </ProfileCheck>
+        </PrivateRoute>
     );
 }

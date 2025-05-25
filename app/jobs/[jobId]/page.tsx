@@ -1,3 +1,4 @@
+// app/jobs/[jobId]/page.tsx
 'use client'
 
 import React, { useState, useEffect } from 'react';
@@ -135,15 +136,17 @@ export default function JobDetail() {
             <PrivateRoute>
                 <ProfileCheck>
                     <div className="min-h-screen bg-gray-700">
-                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
-                            <h1 className="text-2xl font-bold text-red-400 mb-4">Job not found</h1>
-                            <p className="mb-4 text-gray-300">The job you're looking for doesn't exist or you don't have access to it.</p>
-                            <Link
-                                href="/jobs"
-                                className={getButtonClasses('primary')}
-                            >
-                                Back to Jobs
-                            </Link>
+                        <div className="bg-gray-700 border-b border-gray-600 px-4 sm:px-6 lg:px-8 py-6 pt-20">
+                            <div className="max-w-7xl mx-auto text-center">
+                                <h1 className="text-2xl font-bold text-red-400 mb-4">Job not found</h1>
+                                <p className="mb-4 text-gray-300">The job you're looking for doesn't exist or you don't have access to it.</p>
+                                <Link
+                                    href="/jobs"
+                                    className={getButtonClasses('primary')}
+                                >
+                                    Back to Jobs
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 </ProfileCheck>
@@ -155,39 +158,53 @@ export default function JobDetail() {
         <PrivateRoute>
             <ProfileCheck>
                 <div className="min-h-screen bg-gray-700">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                        <div className="flex justify-between items-center mb-6">
-                            <div className="flex items-center">
-                                <Link
-                                    href="/jobs"
-                                    className="mr-4 text-gray-400 hover:text-gray-300"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                                    </svg>
-                                </Link>
-                                <h1 className="text-2xl font-bold text-white">{editing ? 'Edit Job' : job.title}</h1>
-                            </div>
-                            {!editing && (
-                                <div className="flex space-x-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => setEditing(true)}
-                                        className={getButtonClasses('secondary')}
+                    {/* Header - Added proper padding-top to account for fixed navbar */}
+                    <div className="bg-gray-700 border-b border-gray-600 px-4 sm:px-6 lg:px-8 py-6 pt-20">
+                        <div className="max-w-7xl mx-auto">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                                <div className="flex items-center mb-4 sm:mb-0">
+                                    <Link
+                                        href="/jobs"
+                                        className="mr-4 text-gray-400 hover:text-gray-300 transition-colors"
                                     >
-                                        Edit
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={startPracticeSession}
-                                        className={getButtonClasses('primary')}
-                                    >
-                                        Practice for this Job
-                                    </button>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                        </svg>
+                                    </Link>
+                                    <div>
+                                        <h1 className="text-2xl font-bold text-white">{editing ? 'Edit Job' : job.title}</h1>
+                                        <p className="mt-1 text-gray-400">{job.company}</p>
+                                    </div>
                                 </div>
-                            )}
+                                {!editing && (
+                                    <div className="flex space-x-3">
+                                        <button
+                                            type="button"
+                                            onClick={() => setEditing(true)}
+                                            className={getButtonClasses('secondary')}
+                                        >
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                            Edit
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={startPracticeSession}
+                                            className={getButtonClasses('primary')}
+                                        >
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                            </svg>
+                                            Practice for this Job
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                         </div>
+                    </div>
 
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                         {editing ? (
                             <div className={getCardClasses()}>
                                 <form onSubmit={handleUpdateJob}>
@@ -361,12 +378,17 @@ export default function JobDetail() {
                                     <div className="px-4 py-5 sm:px-6">
                                         <h2 className="text-lg font-medium text-white">Saved Answers for this Job</h2>
                                         <p className="mt-1 max-w-2xl text-sm text-gray-400">
-                                            Practice responses you've saved for this specific job
+                                            Practice responses you've saved for this specific job ({answers.length} answers)
                                         </p>
                                     </div>
                                     <div className="border-t border-gray-600">
                                         {answers.length === 0 ? (
                                             <div className="px-4 py-5 sm:px-6 text-center">
+                                                <div className="w-16 h-16 mx-auto mb-4 bg-gray-600 rounded-full flex items-center justify-center">
+                                                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                                    </svg>
+                                                </div>
                                                 <p className="text-sm text-gray-400 mb-4">
                                                     You haven't saved any answers for this job yet.
                                                 </p>
@@ -395,7 +417,7 @@ export default function JobDetail() {
                                                         <p className="text-sm text-gray-300 mb-2 line-clamp-3">{answer.answerText}</p>
                                                         <Link
                                                             href="/answers"
-                                                            className="text-xs text-blue-400 hover:text-blue-300"
+                                                            className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
                                                         >
                                                             View full answer →
                                                         </Link>
