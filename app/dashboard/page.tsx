@@ -10,6 +10,9 @@ import toast from 'react-hot-toast';
 import PrivateRoute from '../ui/components/PrivateRoute';
 import ProfileCheck from '../ui/components/ProfileCheck';
 import { getCardClasses, getButtonClasses } from '../ui/styles/theme';
+import { updateJobStatus } from '../Services/firebase/firestore';
+import { JobStatus } from '../types';
+import Link from 'next/link';
 
 export default function Dashboard() {
     const { currentUser } = useAuth();
@@ -90,6 +93,22 @@ export default function Dashboard() {
             </PrivateRoute>
         );
     }
+
+    const handleQuickStatusUpdate = async (jobId: string, newStatus: JobStatus) => {
+        try {
+            await updateJobStatus(jobId, newStatus);
+            setJobs(prevJobs => 
+                prevJobs.map(job => 
+                    job.id === jobId ? { ...job, status: newStatus } : job
+                )
+            );
+            toast.success(`Job status updated to "${newStatus}"`);
+        } catch (error) {
+            console.error('Error updating job status:', error);
+            toast.error('Failed to update job status');
+        }
+    };
+
 
     return (
         <PrivateRoute>
@@ -230,19 +249,44 @@ export default function Dashboard() {
                                         <ul className="divide-y divide-gray-600">
                                             {jobs.slice(0, 5).map((job) => (
                                                 <li key={job.id} className="px-4 py-4 sm:px-6">
-                                                    <div className="flex justify-between">
-                                                        <div>
-                                                            <p className="text-sm font-medium text-white">{job.title}</p>
-                                                            <p className="text-sm text-gray-400">{job.company}</p>
+                                                    <div className="flex justify-between items-center">
+                                                        <div className="flex-1 min-w-0">
+                                                            <Link href={`/jobs/${job.id}`} className="block hover:text-blue-400 transition-colors">
+                                                                <p className="text-sm font-medium text-white truncate">{job.title}</p>
+                                                                <p className="text-sm text-gray-400">{job.company}</p>
+                                                            </Link>
                                                         </div>
-                                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${job.status === 'Drafted' ? 'bg-blue-100 text-blue-800' :
-                                                                job.status === 'Submitted' ? 'bg-yellow-100 text-yellow-800' :
+                                                        <div className="ml-4 flex-shrink-0">
+                                                            <select
+                                                                value={job.status}
+                                                                onChange={(e) => handleQuickStatusUpdate(job.id, e.target.value as JobStatus)}
+                                                                className={`
+                                                                    inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer
+                                                                    ${job.status === 'Drafted' ? 'bg-blue-100 text-blue-800' :
+                                                                    job.status === 'Submitted' ? 'bg-yellow-100 text-yellow-800' :
                                                                     job.status === 'Interviewing' ? 'bg-purple-100 text-purple-800' :
-                                                                        job.status === 'Offer' ? 'bg-green-100 text-green-800' :
-                                                                            'bg-red-100 text-red-800'
-                                                            }`}>
-                                                            {job.status}
-                                                        </span>
+                                                                    job.status === 'Offer' ? 'bg-green-100 text-green-800' :
+                                                                    'bg-red-100 text-red-800'
+                                                                    } 
+                                                                    hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-blue-500
+                                                                    appearance-none -webkit-appearance-none -moz-appearance-none
+                                                                    pr-6
+                                                                `}
+                                                                style={{
+                                                                    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23374151' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                                                                    backgroundSize: '1em 1em',
+                                                                    backgroundPosition: 'right 0.25rem center',
+                                                                    backgroundRepeat: 'no-repeat'
+                                                                }}
+                                                            >
+                                                                <option value="Drafted">Drafted</option>
+                                                                <option value="Submitted">Submitted</option>
+                                                                <option value="Interviewing">Interviewing</option>
+                                                                <option value="Offer">Offer</option>
+                                                                <option value="Rejected">Rejected</option>
+                                                            </select>
+
+                                                        </div>
                                                     </div>
                                                 </li>
                                             ))}
@@ -250,6 +294,7 @@ export default function Dashboard() {
                                     )}
                                 </div>
                             </div>
+
                         </div>
 
                         {/* Stats card */}

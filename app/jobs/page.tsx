@@ -1,4 +1,3 @@
-// app/jobs/page.tsx
 'use client'
 
 import React, { useState, useEffect } from 'react';
@@ -10,83 +9,8 @@ import toast from 'react-hot-toast';
 import PrivateRoute from '../ui/components/PrivateRoute';
 import ProfileCheck from '../ui/components/ProfileCheck';
 import { getCardClasses, getButtonClasses } from '../ui/styles/theme';
+import JobItem from '../ui/components/jobs/JobItem';
 
-interface JobItemProps {
-    job: Job;
-}
-
-function JobItem({ job }: JobItemProps) {
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'Drafted':
-                return 'bg-blue-100 text-blue-800';
-            case 'Submitted':
-                return 'bg-yellow-100 text-yellow-800';
-            case 'Interviewing':
-                return 'bg-purple-100 text-purple-800';
-            case 'Offer':
-                return 'bg-green-100 text-green-800';
-            case 'Rejected':
-                return 'bg-red-100 text-red-800';
-            default:
-                return 'bg-gray-100 text-gray-800';
-        }
-    };
-
-    const formatDate = (date: any) => {
-        // Check if date is a Firebase timestamp (has seconds and nanoseconds)
-        if (date && typeof date === 'object' && date.seconds !== undefined) {
-            // Convert Firebase timestamp to JS Date
-            return new Date(date.seconds * 1000).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-            });
-        }
-        
-        // Try parsing as a regular date if it's a string or number
-        if (date) {
-            const jsDate = new Date(date);
-            if (!isNaN(jsDate.getTime())) {
-                return jsDate.toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                });
-            }
-        }
-        
-        // Fallback if date is invalid
-        return 'Date not available';
-    };
-
-    return (
-        <Link
-            href={`/jobs/${job.id}`}
-            className="block hover:shadow-lg transition-shadow duration-200"
-        >
-            <div className={`${getCardClasses()} divide-y divide-gray-600 h-full hover:border-blue-500/40`}>
-                <div className="px-4 py-5 sm:px-6 flex justify-between items-start">
-                    <div>
-                        <h3 className="text-lg font-medium text-white truncate">{job.title}</h3>
-                        <p className="mt-1 text-sm text-gray-300">{job.company}</p>
-                    </div>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(job.status)}`}>
-                        {job.status}
-                    </span>
-                </div>
-                <div className="px-4 py-4 sm:px-6">
-                    <div className="text-sm text-gray-400 mb-2">
-                        Added on {formatDate(job.createdAt)}
-                    </div>
-                    <div className="text-sm text-gray-300 line-clamp-3">
-                        {job.description ? job.description.substring(0, 150) + (job.description.length > 150 ? '...' : '') : 'No description provided'}
-                    </div>
-                </div>
-            </div>
-        </Link>
-    );
-}
 
 export default function JobTracker() {
     const { currentUser } = useAuth();
@@ -112,6 +36,17 @@ export default function JobTracker() {
 
         fetchJobs();
     }, [currentUser]);
+
+    // Handle job status updates from JobItem component
+    const handleJobUpdate = (jobId: string, newStatus: JobStatus) => {
+        setJobs(prevJobs => 
+            prevJobs.map(job => 
+                job.id === jobId 
+                    ? { ...job, status: newStatus, updatedAt: new Date() }
+                    : job
+            )
+        );
+    };
 
     const filteredJobs = filter === 'All'
         ? jobs
@@ -148,6 +83,9 @@ export default function JobTracker() {
                                     <h1 className="text-2xl font-bold text-white">Job Tracker</h1>
                                     <p className="mt-1 text-gray-400">
                                         Manage your job applications and track your progress ({totalJobs} total)
+                                    </p>
+                                    <p className="mt-1 text-sm text-blue-400">
+                                        💡 Tip: Click on the status badge to quickly update your application status
                                     </p>
                                 </div>
                                 <div className="flex space-x-3">
@@ -297,7 +235,11 @@ export default function JobTracker() {
                         ) : (
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                                 {filteredJobs.map((job) => (
-                                    <JobItem key={job.id} job={job} />
+                                    <JobItem 
+                                        key={job.id} 
+                                        job={job} 
+                                        onJobUpdate={handleJobUpdate}
+                                    />
                                 ))}
                             </div>
                         )}

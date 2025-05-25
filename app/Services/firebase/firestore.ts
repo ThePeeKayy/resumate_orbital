@@ -23,6 +23,7 @@ import {
     PracticeSession,
     QuestionCategory
 } from '../../types';
+import { JobStatus } from '../../types';
 
 // User Profile Functions
 export const createUserProfile = async (profile: Omit<UserProfile, 'createdAt' | 'updatedAt'>) => {
@@ -303,3 +304,18 @@ export const updatePracticeSession = async (
     });
 };
 
+export const updateJobStatus = async (jobId: string, status: JobStatus) => {
+    if (!jobId) {
+        throw new Error('Job ID is required');
+    }
+    
+    if (!status) {
+        throw new Error('Status is required');
+    }
+
+    const jobRef = doc(db, 'jobs', jobId);
+    await updateDoc(jobRef, {
+        status,
+        updatedAt: serverTimestamp()
+    });
+};
