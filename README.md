@@ -91,7 +91,7 @@ Small component that displays job info in a card
 - `formatDate()` - formats dates nicely
 - Clickable card that goes to job detail page
 
-## 5️⃣ Practice System (The main feature!)
+## 5️⃣ Practice System (Heavily AI Powered portion)
 
 ### PracticeSession.tsx
 This is where users actually practice interviews - the core component
@@ -132,7 +132,7 @@ Multi-step form for creating/editing full profile
 - Can upload PDF resume and AI extracts information automatically
 - Has AI beautification feature
 
-## 7️⃣ Answer Library
+## 7️⃣ Answer Library (Check answer quality)
 
 ### AnswerLibrary.tsx
 Page where users can view and manage all their saved practice answers
