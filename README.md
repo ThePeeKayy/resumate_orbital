@@ -184,22 +184,8 @@ Limited by my RTX4050 so I have to use LoRA and becareful of trainable parameter
 - Custom PyTorch model for local AI
 - Tailwind for styling because we are more familiar with inline styling
 
-## 1️⃣1️⃣ Getting Started
 
-```bash
-# install stuff
-npm install
-
-# set up environment variables 
-
-# start the app
-npm start
-
-# train custom model using my argparses (optional)
-python 7B.py --data_dir ./data
-```
-
-## 1️⃣2️⃣ Important Data Types
+## 1️⃣1️⃣ Important Data Types
 
 - `UserProfile` - all user info
 - `Job` - job application data  
